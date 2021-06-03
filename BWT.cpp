@@ -27,17 +27,17 @@ public:
 			cout << log;
 	}
 };
-// BWT¸¦ ¸¸µé¾îÁÖ°í string ¿¬»ê¿¡ ÇÊ¿äÇÑ ÀÚ·á±¸Á¶¸¦ °ü¸®ÇÏ´Â Å¬·¡½º
-// ¸¸µé¾îÁø BWT¸¦ ÀÌ¿ëÇÏ¿© ¿ø·¡ input sequence¸¦ º¹È£È­ ÇÒ ¼ö ÀÖ´Ù.
+// BWTë¥¼ ë§Œë“¤ì–´ì£¼ê³  string ì—°ì‚°ì— í•„ìš”í•œ ìë£Œêµ¬ì¡°ë¥¼ ê´€ë¦¬í•˜ëŠ” í´ë˜ìŠ¤
+// ë§Œë“¤ì–´ì§„ BWTë¥¼ ì´ìš©í•˜ì—¬ ì›ë˜ input sequenceë¥¼ ë³µí˜¸í™” í•  ìˆ˜ ìˆë‹¤.
 class BWT
 {
 private:
-	// BWT(T)ÀÇ ±æÀÌ, sequence size + 1($) ÀÌ´Ù.
+	// BWT(T)ì˜ ê¸¸ì´, sequence size + 1($) ì´ë‹¤.
 	int T_len;
-	// BWT¿¡ µîÀåÇÏ´Â alphabet°ú alphabet countsÀÇ locationÀ» ÀúÀåÇÏ¿© ¸ÅÇÎÇÏ´Â ÇØ½¬Å×ÀÌºí
+	// BWTì— ë“±ì¥í•˜ëŠ” alphabetê³¼ alphabet countsì˜ locationì„ ì €ì¥í•˜ì—¬ ë§¤í•‘í•˜ëŠ” í•´ì‰¬í…Œì´ë¸”
 	map<char, int> alphabet_loc;
 	int* position_table;
-	// sequence¿¡ µîÀåÇÏ´Â ¾ËÆÄºªÀÇ Á¾·ù °³¼ö
+	// sequenceì— ë“±ì¥í•˜ëŠ” ì•ŒíŒŒë²³ì˜ ì¢…ë¥˜ ê°œìˆ˜
 	int alphabet_size;
 
 	string start;
@@ -52,7 +52,7 @@ public:
 		alphabet_loc = map<char, int>();
 		alphabet_size = 0;
 		T_len = sequence.size() + 1;
-		// BWT º¹È£È­¿¡ ÇÊ¿äÇÑ Å×ÀÌºíÀ» ¸¸µé¾îÁØ´Ù.
+		// BWT ë³µí˜¸í™”ì— í•„ìš”í•œ í…Œì´ë¸”ì„ ë§Œë“¤ì–´ì¤€ë‹¤.
 		sequence.append(1, '$');
 		initialize(sequence);
 		save_bwt();
@@ -66,7 +66,7 @@ public:
 	{
 		delete[] position_table;
 	}
-	// start tokenÀÌ $¶ó°í µÎ°í ¸ÅÇÎ Å×ÀÌºí ´ë·Î µû¶ó°¡¼­ ±âÁ¸ sequence¸¦ º¹È£È­ÇÏ´Â ÇÔ¼ö
+	// start tokenì´ $ë¼ê³  ë‘ê³  ë§¤í•‘ í…Œì´ë¸” ëŒ€ë¡œ ë”°ë¼ê°€ì„œ ê¸°ì¡´ sequenceë¥¼ ë³µí˜¸í™”í•˜ëŠ” í•¨ìˆ˜
 	string decode_sequence()
 	{
 		string decode_str = "";
@@ -97,9 +97,10 @@ public:
 		pre_bwt_file << start;
 		pre_bwt_file.close();
 		
-		for (int i = T_len - 1; i >= 0; i --)
+		position_file << 0 << " ";
+		for (int i = T_len - 2; i >= 0; i --)
 		{
-			position_file << position_table[i] << " ";
+			position_file << position_table[i] - 1 << " ";
 		}
 		position_file.close();
 		cout << "save done" << endl;
@@ -112,7 +113,7 @@ private:
 		position_table = new int[seq_size];
 		char* front = new char[seq_size];
 		char* behind = new char[seq_size];
-		// BWT¿Í Pre BWT º¹¿ø ½Ã ÇÊ¿äÇÑ ¹®ÀÚ¸¦ ¼Â
+		// BWTì™€ Pre BWT ë³µì› ì‹œ í•„ìš”í•œ ë¬¸ìë¥¼ ì…‹
 		for (int i = 0; i < seq_size; i++)
 		{
 			front[i] = sequence[i];
@@ -129,8 +130,8 @@ private:
 
 		cout << "Manber-Myers Algorithm done" << endl;
 
-		// º¹È£È­¸¦ À§ÇÑ ¸ÅÇÎ ÀÚ·á±¸Á¶¿Í position Á¤º¸¸¦ Ãß°¡
-		// ÃâÇö ¼ø¼­´ë·Î ÀÎµ¦½ÌÇÏ´Â °ÍÀÌ Áß¿äÇÏ±â ¶§¹®¿¡ alphabet_counts¸¦ ÀÌ¿ëÇÏ¿© indexing
+		// ë³µí˜¸í™”ë¥¼ ìœ„í•œ ë§¤í•‘ ìë£Œêµ¬ì¡°ì™€ position ì •ë³´ë¥¼ ì¶”ê°€
+		// ì¶œí˜„ ìˆœì„œëŒ€ë¡œ ì¸ë±ì‹±í•˜ëŠ” ê²ƒì´ ì¤‘ìš”í•˜ê¸° ë•Œë¬¸ì— alphabet_countsë¥¼ ì´ìš©í•˜ì—¬ indexing
 		for (int i = seq_size-1; i >= 0; i --)
 		{
 			char from = front[position_table[i]];
@@ -146,13 +147,13 @@ private:
 	}
 	void sort(int k, vector<int>& suffixRank, vector<int>& tempRank)
 	{
-		// °è¼ö Á¤·Ä ÇÔ¼ö
+		// ê³„ìˆ˜ ì •ë ¬ í•¨ìˆ˜
 
 		int n = suffixRank.size();
 
-		// °è¼ö Á¤·Ä½Ã »ç¿ëÇÏ´Â ¹üÀ§
-		// Ã¹ tempRank ¹øÈ£´Â ¹®ÀÚÀÇ ¾Æ½ºÅ° ÄÚµå¸¦ ÀÌ¿ë
-		// ±× ÀÌÈÄ¿¡´Â 0¹øºÎÅÍ ÃÖ´ë n-1 ¾Ë¸Â°Ô range¸¦ ÀâÀ½
+		// ê³„ìˆ˜ ì •ë ¬ì‹œ ì‚¬ìš©í•˜ëŠ” ë²”ìœ„
+		// ì²« tempRank ë²ˆí˜¸ëŠ” ë¬¸ìì˜ ì•„ìŠ¤í‚¤ ì½”ë“œë¥¼ ì´ìš©
+		// ê·¸ ì´í›„ì—ëŠ” 0ë²ˆë¶€í„° ìµœëŒ€ n-1 ì•Œë§ê²Œ rangeë¥¼ ì¡ìŒ
 		int range = max(n, (int)numeric_limits<char>::max());
 
 		vector<int> cnt(range + 1, 0);
@@ -183,7 +184,7 @@ private:
 
 	void findSuffixArr(string& refString, int* seqArray)
 	{
-		// ¹®ÀÚ¿­ ÀÇ suffix array¸¦ ±¸ÇÏ´Â ÇÔ¼ö
+		// ë¬¸ìì—´ ì˜ suffix arrayë¥¼ êµ¬í•˜ëŠ” í•¨ìˆ˜
 
 		int len = refString.size();
 
@@ -204,7 +205,7 @@ private:
 			sort(k, suffixRank, tempRank);
 			sort(0, suffixRank, tempRank);
 
-			// tempRank ¹øÈ£¸¦ °»½Å
+			// tempRank ë²ˆí˜¸ë¥¼ ê°±ì‹ 
 			vector<int> newTempRank(len + 1);
 			newTempRank[suffixRank[0]] = 0;
 			for (int i = 1; i < len; i++)
@@ -229,7 +230,7 @@ private:
 
 	void initialize_alphabet_loc(char alphabet)
 	{
-		// ¾ËÆÄºªÀÌ Á¸ÀçÇÏÁö ¾ÊÀ¸¸é »õ·Î¿î ¾ËÆÄºªÀÇ Á¾·ù·Î ÀÎ½ÄÇÏ°í ÀÎµ¦½º Á¤º¸¿Í ÇÔ²² Ãß°¡ÇÑ´Ù.
+		// ì•ŒíŒŒë²³ì´ ì¡´ì¬í•˜ì§€ ì•Šìœ¼ë©´ ìƒˆë¡œìš´ ì•ŒíŒŒë²³ì˜ ì¢…ë¥˜ë¡œ ì¸ì‹í•˜ê³  ì¸ë±ìŠ¤ ì •ë³´ì™€ í•¨ê»˜ ì¶”ê°€í•œë‹¤.
 		if (alphabet_loc.count(alphabet) < 1)
 		{
 			alphabet_loc.insert(pair<char, int>(alphabet, 1));
