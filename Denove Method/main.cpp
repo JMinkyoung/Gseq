@@ -49,7 +49,7 @@ int main() {
 	fout.write(myDna.c_str(), myDna.size());
 	fout.close();
 
-	string refDna; //referenceÆÄÀÏ·ÎºÎÅÍ sequenceÀĞ¾î¿À´Â ºÎºĞ
+	string refDna; //referenceíŒŒì¼ë¡œë¶€í„° sequenceì½ì–´ì˜¤ëŠ” ë¶€ë¶„
 
 	// make ShortRead
 	vector<string> SR = makeShortRead(myDna);
@@ -85,7 +85,7 @@ int main() {
 	clock_t end = clock();
 	cout << myDna << endl;
 	cout << reseqDna << endl;
-	cout << "°É¸° ½Ã°£ : " << (double)(end - start) / CLOCKS_PER_SEC << "s" << endl;
+	cout << "ê±¸ë¦° ì‹œê°„ : " << (double)(end - start) / CLOCKS_PER_SEC << "s" << endl;
 	// check match rate
 	double matchRate = CheckAccuracy(myDna, reseqDna);
 	cout << matchRate << "%" << endl;
