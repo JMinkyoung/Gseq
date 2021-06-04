@@ -425,6 +425,9 @@ private:
 							k = line.length() - 2;
 							j = line.length() - 1;
 
+							// SR 다음 글자
+							back = line[j];
+							j--;
 							check = false;
 						}
 						// 한칸 넘겼는데 다르면 다른 알파벳 등장이므로 아예 실패
@@ -432,8 +435,6 @@ private:
 							break;
 						}
 					}
-
-
 				}
 			}
 
