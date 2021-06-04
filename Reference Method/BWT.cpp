@@ -97,10 +97,13 @@ public:
 		pre_bwt_file << start;
 		pre_bwt_file.close();
 		
-		position_file << 0 << " ";
-		for (int i = T_len - 2; i >= 0; i --)
+		int pos;
+		for (int i = T_len - 1; i >= 0; i --)
 		{
-			position_file << position_table[i] - 1 << " ";
+			pos = position_table[i] - 1;
+			if (pos < 0)
+				pos = T_len - 1;
+			position_file << pos << " ";
 		}
 		position_file.close();
 		cout << "save done" << endl;
