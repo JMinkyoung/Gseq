@@ -8,9 +8,9 @@
 using namespace std;
 
 #define REF_LEN 18142223
-#define REF_FILE "Homo_sapiens.GRCh38.dna_sm.chromosome.22.ref.txt"
+#define REF_FILE "referenceDNA_100000.txt"
 #define K 70
-#define N 100000000
+#define N 20000000
 #define SNP_NUM 2
 #define SHORT_READ_FILE "short_read_dna_change.txt"
 #define SHORT_READ_ORIGIN_FILE "short_reads_seq_70_100million2.txt"
