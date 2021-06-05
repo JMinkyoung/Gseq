@@ -88,7 +88,7 @@ int main() {
 	clock_t end_time = clock();
 	cout << myDna << endl;
 	cout << reseqDna << endl;
-	cout << "�ɸ� �ð� : " << (double)(end_time - start_time) / CLOCKS_PER_SEC << "s" << endl;
+	cout << "°É¸° ½Ã°£ : " << (double)(end_time - start_time) / CLOCKS_PER_SEC << "s" << endl;
 	// check match rate
 	double matchRate = CheckAccuracy(myDna, reseqDna);
 	cout << matchRate << "%" << endl;
