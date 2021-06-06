@@ -50,20 +50,21 @@ map<string, vector<string>> makeNodeforDBG(string Dna, vector<string> SR) {
 	map<string, vector<string>> node;
 	srand(time(NULL));
 	for (int i = 0; i < SR.size(); i++) {
-		// km1LÀº key·Î ÀúÀå, km1RÀº value¿¡ vector·Î ÀúÀå
+		// km1Lì€ keyë¡œ ì €ì¥, km1Rì€ valueì— vectorë¡œ ì €ì¥
 		string km1L = SR[i].substr(0, k - 1);
 		if (node.find(km1L) == node.end()) {
 			node[SR[i].substr(0, k - 1)].push_back(SR[i].substr(1, k - 1));
 		}
 		else {
-			//repeatµÇ´Â ºÎºĞÀÌ Á¸ÀçÇÑ´Ù¸é map node¿¡ ÀúÀåµÇ´Â km1RÀÇ ¼ø¼­¸¦ ·£´ıÀ¸·Î ÀúÀå(¿©·¯°³ÀÇ eulerian path°¡ »ı±è)
+			// ì¤‘ë³µë˜ëŠ” km1Lì— ëŒ€í•˜ì—¬ ê¸°ì¡´ nodeì— km1Rì„ insertë¡œ ëœë¤ ì¸ë±ìŠ¤ì— ì €ì¥
+			// í›„ì— nodeë¥¼ ìˆœíšŒí•  ë•Œ ê°ˆ ìˆ˜ ìˆëŠ” ë°©í–¥(km1R)ì´ ì—¬ëŸ¬ê°œë¼ë©´ ëœë¤ìœ¼ë¡œ ê²½ë¡œ ë°©í–¥ì„ ê²°ì •í•˜ëŠ”ë°, ì´ë¥¼ í‘œí˜„í•˜ê¸° ìœ„í•´ km1Rì´ ì €ì¥ë˜ëŠ” ìˆœì„œë¥¼ ëœë¤ìœ¼ë¡œ ê²°ì •í•¨
 			int rdlocation = rand() % (node[SR[i].substr(0, k - 1)].size());
 			node[SR[i].substr(0, k - 1)].insert(node[SR[i].substr(0, k - 1)].begin() + rdlocation, SR[i].substr(1, k - 1));
 			//node[SR[i].substr(0, k - 1)].push_back(SR[i].substr(1, k - 1));
 			//cout << node[SR[i].substr(0, k - 1)].size()  << " " << rdlocation << endl;
 		}
 	}
-	// ¸¶Áö¸· k-1mer°¡ ±âÁ¸ node¿¡ ¾øÀ¸¸é Ãß°¡
+	// ë§ˆì§€ë§‰ k-1merê°€ ê¸°ì¡´ nodeì— ì—†ìœ¼ë©´ ì¶”ê°€
 	string last = Dna.substr(Dna.length() - (k - 1), k - 1);
 	if (node.find(last) == node.end()) {
 		node[last].push_back("");
@@ -77,7 +78,7 @@ map<string, int> makeDegreeforDBG(string Dna, vector<string> SR, map<string, vec
 	map<string, int> degree;
 
 	for (int i = 0; i < SR.size(); i++) {
-		// km1LÀº key·Î ÀúÀå, value¿¡´Â in-degree °³¼ö ÀúÀå
+		// km1Lì€ keyë¡œ ì €ì¥, valueì—ëŠ” in-degree ê°œìˆ˜ ì €ì¥
 		string km1L = SR[i].substr(0, k - 1);
 		if (node.find(km1L) == node.end()) {
 			degree[SR[i].substr(0, k - 1)] = 1;
@@ -86,7 +87,7 @@ map<string, int> makeDegreeforDBG(string Dna, vector<string> SR, map<string, vec
 			degree[SR[i].substr(0, k - 1)] += 1;
 		}
 	}
-	// Ã³À½, ¸¶Áö¸· k-1merÀÇ in-degree edit
+	// ì²˜ìŒ, ë§ˆì§€ë§‰ k-1merì˜ in-degree edit
 	string first = Dna.substr(0, k - 1);
 	degree[first] -= 1;
 	string last = Dna.substr(Dna.length() - (k - 1), k - 1);
@@ -99,24 +100,24 @@ string EulerianGraph(map<string, vector<string>> node, map<string, int> degree, 
 	vector<string> semibalanced;
 	string start;
 
-	// °¢ nodeº°·Î km1L, out-degree ÀúÀå
+	// ê° nodeë³„ë¡œ km1L, out-degree ì €ì¥
 	map<string, int> outdegree;
 	map<string, vector<string>>::iterator it;
 	for (it = node.begin(); it != node.end(); it++) {
 		outdegree[it->first] = it->second.size();
 	}
-	// °¢ nodeº°·Î km1L, in-degree ÀúÀå
+	// ê° nodeë³„ë¡œ km1L, in-degree ì €ì¥
 	map<string, int> indegree;
 	map<string, int>::iterator it2;
 	for (it2 = degree.begin(); it2 != degree.end(); it2++) {
 		indegree[it2->first] = it2->second;
 	}
-	// in-degree¿Í out-degree ºñ±³
+	// in-degreeì™€ out-degree ë¹„êµ
 	for (it2 = outdegree.begin(); it2 != outdegree.end(); it2++) {
 		if ((outdegree[it2->first] + indegree[it2->first]) % 2 == 1) {
-			// Â÷¼ö°¡ È¦¼öÀÎ node¸¦ ÀúÀå
+			// ì°¨ìˆ˜ê°€ í™€ìˆ˜ì¸ nodeë¥¼ ì €ì¥
 			if (semibalanced.size() > 2)
-				break; // eulerian path ¼º¸³ x
+				break; // eulerian path ì„±ë¦½ x
 			semibalanced.push_back(it2->first);
 		}
 	}
@@ -124,12 +125,12 @@ string EulerianGraph(map<string, vector<string>> node, map<string, int> degree, 
 		cout << semibalanced[i] << endl;
 	}
 	// find eulerian path
-	if (semibalanced.size() == 0) { // È¦¼ö Â÷¼ö 0°³(eulerian circuit)
+	if (semibalanced.size() == 0) { // í™€ìˆ˜ ì°¨ìˆ˜ 0ê°œ(eulerian circuit)
 		start = Dna.substr(0, k - 1);
 		cout << "start : " << start << endl;
 		return start;
 	}
-	else if (semibalanced.size() == 2) { // È¦¼ö Â÷¼ö 2°³(start, end)
+	else if (semibalanced.size() == 2) { // í™€ìˆ˜ ì°¨ìˆ˜ 2ê°œ(start, end)
 		for (int i = 0; i < semibalanced.size(); i++) {
 			// find start node
 			if (outdegree[semibalanced[i]] == indegree[semibalanced[i]] + 1) {
@@ -173,7 +174,7 @@ vector<string> findEulerianPath(map<string, vector<string>> node, string start) 
 
 double CheckAccuracy(string myDna, string reseqDna) {
 	int match = 0;
-	// reseqDna¿Í myDnaÀÇ ¹®ÀÚ¿­ ÇÏ³ª¾¿ ºñ±³
+	// reseqDnaì™€ myDnaì˜ ë¬¸ìì—´ í•˜ë‚˜ì”© ë¹„êµ
 	for (int i = 0; i < reseqDna.length(); i++) {
 		if (myDna.at(i) == reseqDna.at(i)) {
 			match++;
