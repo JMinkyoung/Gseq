@@ -57,9 +57,9 @@ private:
 	int* bwt_behind_index;
 	char* decoding_result;
 
-	int A_cnt = 12588;
-	int C_cnt = 12432;
-	int G_cnt = 12583;
+	int a_cnt = 12588;
+	int c_cnt = 12432;
+	int g_cnt = 12583;
 	int T_cnt = 12397;
 
 	// SR °³¼ö
@@ -355,13 +355,13 @@ private:
 			index = 1;
 		}
 		else if (word == 'c') {
-			index = A_cnt + 1;
+			index = a_cnt + 1;
 		}
 		else if (word == 'g') {
-			index = A_cnt + C_cnt + 1;
+			index = a_cnt + c_cnt + 1;
 		}
 		else if (word == 't') {
-			index = A_cnt + C_cnt + G_cnt + 1;
+			index = a_cnt + c_cnt + g_cnt + 1;
 		}
 
 		return index;
