@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <fstream>
+#include <ctime>
 #define _CRT_SECURE_NO_WARNINGS
 
 //#define INPUT_REF "ref.txt"
@@ -18,6 +19,7 @@
 #define POSTION_TABLE_NAME "position.txt"
 #define ALPHABET_NAME "alphabet.txt"
 #define DECODING_NAME "decoding_result.txt"
+#define SHORT_READ_NAME "short_read_dna_change.txt"
 
 
 
@@ -38,36 +40,39 @@ public:
 			cout << log;
 	}
 };
-// BWT¸¦ ¸¸µé¾îÁÖ°í string ¿¬»ê¿¡ ÇÊ¿äÇÑ ÀÚ·á±¸Á¶¸¦ °ü¸®ÇÏ´Â Å¬·¡½º
-// ¸¸µé¾îÁø BWT¸¦ ÀÌ¿ëÇÏ¿© ¿ø·¡ input sequence¸¦ º¹È£È­ ÇÒ ¼ö ÀÖ´Ù.
+// BWTë¥¼ ë§Œë“¤ì–´ì£¼ê³  string ì—°ì‚°ì— í•„ìš”í•œ ìë£Œêµ¬ì¡°ë¥¼ ê´€ë¦¬í•˜ëŠ” í´ë˜ìŠ¤
+// ë§Œë“¤ì–´ì§„ BWTë¥¼ ì´ìš©í•˜ì—¬ ì›ë˜ input sequenceë¥¼ ë³µí˜¸í™” í•  ìˆ˜ ìˆë‹¤.
 class BWT
 {
 private:
-	// BWT(T)ÀÇ ±æÀÌ, sequence size + 1($) ÀÌ´Ù.
+	// BWT(T)ì˜ ê¸¸ì´, sequence size + 1($) ì´ë‹¤.
 	int T_len;
-	// BWT¿¡ µîÀåÇÏ´Â alphabet°ú alphabet countsÀÇ locationÀ» ÀúÀåÇÏ¿© ¸ÅÇÎÇÏ´Â ÇØ½¬Å×ÀÌºí
+	// BWTì— ë“±ì¥í•˜ëŠ” alphabetê³¼ alphabet countsì˜ locationì„ ì €ì¥í•˜ì—¬ ë§¤í•‘í•˜ëŠ” í•´ì‰¬í…Œì´ë¸”
 	map<char, int> alphabet_loc;
 	int* position_table;
-	// sequence¿¡ µîÀåÇÏ´Â ¾ËÆÄºªÀÇ Á¾·ù °³¼ö
+	// sequenceì— ë“±ì¥í•˜ëŠ” ì•ŒíŒŒë²³ì˜ ì¢…ë¥˜ ê°œìˆ˜
 	int alphabet_size;
 
 	char* bwt_front;
 	char* bwt_behind;
-	int* bwt_front_index;
+	map<int, int> bwt_front_index;
 	int* bwt_behind_index;
 	char* decoding_result;
+	bool* already_decoded;
 
-	int a_cnt = 12588;
-	int c_cnt = 12432;
-	int g_cnt = 12583;
-	int T_cnt = 12397;
+	int A_cnt = 2471;
+	int C_cnt = 2454;
+	int G_cnt = 2522;
+	int T_cnt = 2553;
+	int alphabet_index[4] = { 1, A_cnt + 1, A_cnt + C_cnt + 1, A_cnt + C_cnt + G_cnt + 1 };
 
-	// SR °³¼ö
+
+	// SR ê°œìˆ˜
 	//const int M = 100000000;
 	const int M = 100000;
-	// SR ±æÀÌ
+	// SR ê¸¸ì´
 	const int L = 70;
-	// missmatch Çã¿ë °³¼ö
+	// missmatch í—ˆìš© ê°œìˆ˜
 	const int D = 2;
 
 	string start;
@@ -84,19 +89,39 @@ public:
 		alphabet_loc = map<char, int>();
 		alphabet_size = 0;
 		T_len = sequence.size() + 1;
-		// BWT º¹È£È­¿¡ ÇÊ¿äÇÑ Å×ÀÌºíÀ» ¸¸µé¾îÁØ´Ù.
+		// BWT ë³µí˜¸í™”ì— í•„ìš”í•œ í…Œì´ë¸”ì„ ë§Œë“¤ì–´ì¤€ë‹¤.
 		//sequence.append(1, '$');
 		//initialize(sequence);
+		clock_t start, end;
 
-		bwt_front_index = new int[T_len];
+		bwt_front_index = map<int,int>();
 		bwt_behind_index = new int[T_len];
 		bwt_front = new char[T_len];
 		bwt_behind = new char[T_len];
 		decoding_result = new char[T_len];
+		already_decoded = new bool[T_len];
 
 		fileRead_bwt();
 		fileRead_position();
-		BWT_decoding("short_read_dna_change.txt", T_len);
+		ifstream read_file;
+		vector<string> short_reads = vector<string>();
+		read_file.open(SHORT_READ_NAME);
+		if (read_file.is_open())
+		{
+			while (!read_file.eof())
+			{
+				string str;
+				getline(read_file, str);
+				short_reads.push_back(str);
+			}
+			read_file.close();
+		}
+		cout << "start decoding" << endl;
+		start = clock();
+		BWT_decoding(short_reads, T_len);
+		end = clock();
+		double result = double(end - start);
+		cout << "BWT decoding method running time : " << result / CLOCKS_PER_SEC << "\n" << endl;
 
 		//save_bwt();
 	}
@@ -110,13 +135,12 @@ public:
 		delete[] position_table;
 		delete[] bwt_front;
 		delete[] bwt_behind;
-		delete[] bwt_front_index;
 		delete[] bwt_behind_index;
 		delete[] decoding_result;
 	}
 
 
-	// start tokenÀÌ $¶ó°í µÎ°í ¸ÅÇÎ Å×ÀÌºí ´ë·Î µû¶ó°¡¼­ ±âÁ¸ sequence¸¦ º¹È£È­ÇÏ´Â ÇÔ¼ö
+	// start tokenì´ $ë¼ê³  ë‘ê³  ë§¤í•‘ í…Œì´ë¸” ëŒ€ë¡œ ë”°ë¼ê°€ì„œ ê¸°ì¡´ sequenceë¥¼ ë³µí˜¸í™”í•˜ëŠ” í•¨ìˆ˜
 	string decode_sequence()
 	{
 		string decode_str = "";
@@ -166,7 +190,7 @@ private:
 		position_table = new int[seq_size];
 		char* front = new char[seq_size];
 		char* behind = new char[seq_size];
-		// BWT¿Í Pre BWT º¹¿ø ½Ã ÇÊ¿äÇÑ ¹®ÀÚ¸¦ ¼Â
+		// BWTì™€ Pre BWT ë³µì› ì‹œ í•„ìš”í•œ ë¬¸ìë¥¼ ì…‹
 		for (int i = 0; i < seq_size; i++)
 		{
 			front[i] = sequence[i];
@@ -183,8 +207,8 @@ private:
 
 		cout << "Manber-Myers Algorithm done" << endl;
 
-		// º¹È£È­¸¦ À§ÇÑ ¸ÅÇÎ ÀÚ·á±¸Á¶¿Í position Á¤º¸¸¦ Ãß°¡
-		// ÃâÇö ¼ø¼­´ë·Î ÀÎµ¦½ÌÇÏ´Â °ÍÀÌ Áß¿äÇÏ±â ¶§¹®¿¡ alphabet_counts¸¦ ÀÌ¿ëÇÏ¿© indexing
+		// ë³µí˜¸í™”ë¥¼ ìœ„í•œ ë§¤í•‘ ìë£Œêµ¬ì¡°ì™€ position ì •ë³´ë¥¼ ì¶”ê°€
+		// ì¶œí˜„ ìˆœì„œëŒ€ë¡œ ì¸ë±ì‹±í•˜ëŠ” ê²ƒì´ ì¤‘ìš”í•˜ê¸° ë•Œë¬¸ì— alphabet_countsë¥¼ ì´ìš©í•˜ì—¬ indexing
 		for (int i = seq_size - 1; i >= 0; i--)
 		{
 			char from = front[position_table[i]];
@@ -200,13 +224,13 @@ private:
 	}
 	void sort(int k, vector<int>& suffixRank, vector<int>& tempRank)
 	{
-		// °è¼ö Á¤·Ä ÇÔ¼ö
+		// ê³„ìˆ˜ ì •ë ¬ í•¨ìˆ˜
 
 		int n = suffixRank.size();
 
-		// °è¼ö Á¤·Ä½Ã »ç¿ëÇÏ´Â ¹üÀ§
-		// Ã¹ tempRank ¹øÈ£´Â ¹®ÀÚÀÇ ¾Æ½ºÅ° ÄÚµå¸¦ ÀÌ¿ë
-		// ±× ÀÌÈÄ¿¡´Â 0¹øºÎÅÍ ÃÖ´ë n-1 ¾Ë¸Â°Ô range¸¦ ÀâÀ½
+		// ê³„ìˆ˜ ì •ë ¬ì‹œ ì‚¬ìš©í•˜ëŠ” ë²”ìœ„
+		// ì²« tempRank ë²ˆí˜¸ëŠ” ë¬¸ìì˜ ì•„ìŠ¤í‚¤ ì½”ë“œë¥¼ ì´ìš©
+		// ê·¸ ì´í›„ì—ëŠ” 0ë²ˆë¶€í„° ìµœëŒ€ n-1 ì•Œë§ê²Œ rangeë¥¼ ì¡ìŒ
 		int range = max(n, (int)numeric_limits<char>::max());
 
 		vector<int> cnt(range + 1, 0);
@@ -237,7 +261,7 @@ private:
 
 	void findSuffixArr(string& refString, int* seqArray)
 	{
-		// ¹®ÀÚ¿­ ÀÇ suffix array¸¦ ±¸ÇÏ´Â ÇÔ¼ö
+		// ë¬¸ìì—´ ì˜ suffix arrayë¥¼ êµ¬í•˜ëŠ” í•¨ìˆ˜
 
 		int len = refString.size();
 
@@ -258,7 +282,7 @@ private:
 			sort(k, suffixRank, tempRank);
 			sort(0, suffixRank, tempRank);
 
-			// tempRank ¹øÈ£¸¦ °»½Å
+			// tempRank ë²ˆí˜¸ë¥¼ ê°±ì‹ 
 			vector<int> newTempRank(len + 1);
 			newTempRank[suffixRank[0]] = 0;
 			for (int i = 1; i < len; i++)
@@ -283,7 +307,7 @@ private:
 
 	void initialize_alphabet_loc(char alphabet)
 	{
-		// ¾ËÆÄºªÀÌ Á¸ÀçÇÏÁö ¾ÊÀ¸¸é »õ·Î¿î ¾ËÆÄºªÀÇ Á¾·ù·Î ÀÎ½ÄÇÏ°í ÀÎµ¦½º Á¤º¸¿Í ÇÔ²² Ãß°¡ÇÑ´Ù.
+		// ì•ŒíŒŒë²³ì´ ì¡´ì¬í•˜ì§€ ì•Šìœ¼ë©´ ìƒˆë¡œìš´ ì•ŒíŒŒë²³ì˜ ì¢…ë¥˜ë¡œ ì¸ì‹í•˜ê³  ì¸ë±ìŠ¤ ì •ë³´ì™€ í•¨ê»˜ ì¶”ê°€í•œë‹¤.
 		if (alphabet_loc.count(alphabet) < 1)
 		{
 			alphabet_loc.insert(pair<char, int>(alphabet, 1));
@@ -300,7 +324,7 @@ private:
 		fin.open(BWT_NAME);
 		fin >> str;
 
-		cout << "bwtÆÄÀÏ ÀĞ±â ½ÃÀÛ" << endl;
+		cout << "bwtíŒŒì¼ ì½ê¸° ì‹œì‘" << endl;
 		for (int i = 0; i < str.length(); i++) {
 			bwt_behind[i] = str[i];
 		}
@@ -312,7 +336,7 @@ private:
 		for (int i = 0; i < str2.length(); i++) {
 			bwt_front[i] = str2[i];
 		}
-		cout << "bwtÆÄÀÏ ÀĞ±â ³¡" << endl;
+		cout << "bwtíŒŒì¼ ì½ê¸° ë" << endl;
 		fin.close();
 
 	}
@@ -322,21 +346,17 @@ private:
 		int temp = 0;
 		ifstream fin;
 		fin.open(POSTION_TABLE_NAME);
-		cout << "positionÆÄÀÏ ÀĞ±â ½ÃÀÛ" << endl;
+		cout << "positioníŒŒì¼ ì½ê¸° ì‹œì‘" << endl;
 
 		for (int i = 0; i < T_len; i++) {
 			fin >> bwt_behind_index[i];
-		}
-
-		for (int i = 0; i < T_len; i++) {
-			if (bwt_behind_index[i] == T_len-1) {
-				bwt_front_index[i] = 0;
+			if (bwt_behind_index[i] == T_len - 1) {
+				bwt_front_index.insert(pair<int, int>(0, i));
 			}
-			else {
-				bwt_front_index[i] = bwt_behind_index[i] + 1;
-			}
+			else
+				bwt_front_index.insert(pair<int, int>(bwt_behind_index[i] + 1, i));
 		}
-		cout << "positionÆÄÀÏ ÀĞ±â ³¡" << endl;
+		cout << "positioníŒŒì¼ ì½ê¸° ë" << endl;
 
 		fin.close();
 
@@ -346,69 +366,63 @@ private:
 
 	}
 
-	// Ã¹ °Ë»ö index¸¦ Ã£±â À§ÇØ¼­
+	// ì²« ê²€ìƒ‰ indexë¥¼ ì°¾ê¸° ìœ„í•´ì„œ
 	int find_index(char word) {
 
-		int index = 0;
 
 		if (word == 'a') {
-			index = 1;
+			return alphabet_index[0];
 		}
 		else if (word == 'c') {
-			index = a_cnt + 1;
+			return alphabet_index[1];
 		}
 		else if (word == 'g') {
-			index = a_cnt + c_cnt + 1;
+			return alphabet_index[2];
 		}
-		else if (word == 't') {
-			index = a_cnt + c_cnt + g_cnt + 1;
+		else {
+			return alphabet_index[3];
 		}
-
-		return index;
 	}
 
-	void BWT_decoding(string fileName, int len) {
+	void BWT_decoding(vector<string> short_reads, int len) {
 
-		cout << "decoding ½ÃÀÛ" << endl;
-		ofstream fout;
-		fout.open(DECODING_NAME, ios::app);
-		// SR ÆÄÀÏ ÀĞ¾î¿Â´Ù
-		ifstream fin;
-		fin.open(fileName);
+		cout << "decoding ì‹œì‘" << endl;
+		
 
-		// SR °³¼ö´Â °íÁ¤ÀÌ¹Ç·Î
+		// SR ê°œìˆ˜ëŠ” ê³ ì •ì´ë¯€ë¡œ
 		int SR_M = M;
 		int miss_match = 0;
 		int i, j, k, l, front_idx, back_idx;
 		string line;
 		char front, back;
 		bool check;
+		int match_cnt = 0;
 
 
-		// SR ÇÑÁÙ¾¿ ÀĞ¾îµéÀÎ´Ù.
-		for (i = 0; i < SR_M; i++) {
-			//cout << "SR ÀĞÀ½" << endl;
+		// SR í•œì¤„ì”© ì½ì–´ë“¤ì¸ë‹¤.
+		for (i = 0; i < short_reads.size(); i++) {
+			//cout << "SR ì½ìŒ" << endl;
 			k = 0;
-			//cout << "line ÀĞ±â ½ÃÀÛ" << endl;
+			//cout << "line ì½ê¸° ì‹œì‘" << endl;
 			check = true;
 			back_idx = 0;
-			getline(fin, line);
+			line = short_reads[i];
 
-			// ÀĞ¾î¿Â ÇÑ ÁÙ¿¡¼­ µÚ¿¡¼­ ºÎÅÍ ÇÑ±ÛÀÚ¾¿ ÀĞÀ½
+			// ì½ì–´ì˜¨ í•œ ì¤„ì—ì„œ ë’¤ì—ì„œ ë¶€í„° í•œê¸€ìì”© ì½ìŒ
 			j = line.length() - 1;
 			front = line[j];
 			j--;
 			miss_match = 0;
-
-			// °Ë»öÀ» ½ÃÀÛÇÒ index¸¦ Ã£´Â´Ù.
+			match_cnt = 0;
+			// ê²€ìƒ‰ì„ ì‹œì‘í•  indexë¥¼ ì°¾ëŠ”ë‹¤.
 			front_idx = find_index(front);
 
-			// bwt Å×ÀÌºíÀÇ ¾Õ±ÛÀÚ¿Í °°ÀºÁö È®ÀÎ
-			// °°À» ¶§
+			// bwt í…Œì´ë¸”ì˜ ì•ê¸€ìì™€ ê°™ì€ì§€ í™•ì¸
+			// ê°™ì„ ë•Œ
 			if (bwt_front[front_idx] == front) {
 				
 
-				// bwtÀÇ index¸¦ °¡Á®¿Â´Ù
+				// bwtì˜ indexë¥¼ ê°€ì ¸ì˜¨ë‹¤
 				back_idx = bwt_behind_index[front_idx];
 
 				for (k = line.length() - 2; k >= 0; k--) {
@@ -417,58 +431,68 @@ private:
 						break;
 					}
 
-					// SR ´ÙÀ½ ±ÛÀÚ
+					// SR ë‹¤ìŒ ê¸€ì
 					back = line[j];
 					j--;
 
-					//cout << "front : "<<front<<"          ""back : " << back <<"        "<< "back ÀÎµ¦½º :" << back_idx << "       miss match : " << miss_match << endl;
+					//cout << "front : "<<front<<"          ""back : " << back <<"        "<< "back ì¸ë±ìŠ¤ :" << back_idx << "       miss match : " << miss_match << endl;
 
-					for (l = 0; l <= len; l++) {
-						if (bwt_front_index[l] == back_idx) {
-							if (bwt_front[l] != back) {
-								miss_match++;
-							}
-							// bwtÀÇ index¸¦ °¡Á®¿Â´Ù
-							back_idx = bwt_behind_index[l];
-							break;
-						}
+					if (bwt_front[bwt_front_index[back_idx]] != back) {
+						miss_match++;
 					}
+					else
+						match_cnt++;
+					// bwtì˜ indexë¥¼ ê°€ì ¸ì˜¨ë‹¤
+					back_idx = bwt_behind_index[bwt_front_index[back_idx]];
 
-					// Å½»ö¿¡¼­ Ã¼Å©µÈ miss match °³¼ö°¡
-					// miss match Á¦ÇÑ ¼ö¸¦ ³Ñ°Ô µÇ¸é
+					// íƒìƒ‰ì—ì„œ ì²´í¬ëœ miss match ê°œìˆ˜ê°€
+					// miss match ì œí•œ ìˆ˜ë¥¼ ë„˜ê²Œ ë˜ë©´
 					if (miss_match > D) {
-						// ÇÑÄ­ ¾ÕÀ¸·Î °¬À» ¶§ °°À¸¸é
+						// í•œì¹¸ ì•ìœ¼ë¡œ ê°”ì„ ë•Œ ê°™ìœ¼ë©´
 						if (bwt_front[++front_idx] == front) {
-							// bwtÀÇ index¸¦ °¡Á®¿Â´Ù
+							// bwtì˜ indexë¥¼ ê°€ì ¸ì˜¨ë‹¤
 							back_idx = bwt_behind_index[front_idx];
 
-							// Å½»ö ´Ù½Ã ½ÃÀÛ
+							// íƒìƒ‰ ë‹¤ì‹œ ì‹œì‘
 							miss_match = 0;
+							match_cnt = 0;
 							k = line.length() - 2;
 							j = line.length() - 1;
-							// SR ´ÙÀ½ ±ÛÀÚ
+							// SR ë‹¤ìŒ ê¸€ì
 							back = line[j];
 							j--;
 							check = false;
 						}
-						// ÇÑÄ­ ³Ñ°å´Âµ¥ ´Ù¸£¸é ´Ù¸¥ ¾ËÆÄºª µîÀåÀÌ¹Ç·Î ¾Æ¿¹ ½ÇÆĞ
+						// í•œì¹¸ ë„˜ê²¼ëŠ”ë° ë‹¤ë¥´ë©´ ë‹¤ë¥¸ ì•ŒíŒŒë²³ ë“±ì¥ì´ë¯€ë¡œ ì•„ì˜ˆ ì‹¤íŒ¨
 						else {
 							break;
 						}
 					}
+					else if(match_cnt >= L - D)
+					{
+						// ë³µì›ëœ DNAë¥¼ ë°°ì—´ì— ë„£ì–´ì¤€ë‹¤
+						int ptr = back_idx;
+						if (!already_decoded[ptr])
+						{
+							already_decoded[ptr] = true;
+							for (int x = 0; x < L; x++) {
+								decoding_result[ptr] = line[x];
+								ptr++;
+							}
+						}
+						break;
+					}
 
 				}
 			}
-
-			// º¹¿øµÈ DNA¸¦ ¹è¿­¿¡ ³Ö¾îÁØ´Ù
-			int ptr = back_idx;
-			for (int x = 0; x < L; x++) {
-				decoding_result[ptr] = line[x];
-				ptr++;
-			}
+			if (i % 1000 == 0)
+				cout << "iter = " << i << endl;
 		}
 
-		// ¹è¿­¿¡ µé¾î°£ º¹¿øµÈ DNA¸¦ ÆÄÀÏ·Î »ı¼º
+		ofstream fout;
+		fout.open(DECODING_NAME, ios::app);
+		// SR íŒŒì¼ ì½ì–´ì˜¨ë‹¤
+		// ë°°ì—´ì— ë“¤ì–´ê°„ ë³µì›ëœ DNAë¥¼ íŒŒì¼ë¡œ ìƒì„±
 		if (fout.is_open()) {
 			for (int x = 0; x < T_len; x++) {
 				fout << decoding_result[x];
@@ -513,7 +537,7 @@ void compare_result(string my, string new_my) {
 	percent = double(N - miss) / double(N) * 100;
 	cout << fixed;
 	cout.precision(2);
-	cout << percent << "%ÀÇ ÀÏÄ¡À²À» º¸ÀÔ´Ï´Ù" << endl;
+	cout << percent << "%ì˜ ì¼ì¹˜ìœ¨ì„ ë³´ì…ë‹ˆë‹¤" << endl;
 
 }
 
@@ -521,7 +545,7 @@ int main()
 {
 	string input;
 	input = read_file(INPUT_REF);
-	////input = "insertiondeletion";
+	//input = "insertiondeletion";
 	BWT bwt = BWT(input);
 
 	/*
@@ -531,17 +555,17 @@ int main()
 	cout << bwt.decode_sequence() << endl;
 	*/
 
-	// ÀÏÄ¡À² ºñ±³
-	ifstream fin;
-	string ref,result;
-	fin.open(INPUT_REF);
-	fin >> ref;
-	fin.close();
+	// ì¼ì¹˜ìœ¨ ë¹„êµ
+	//ifstream fin;
+	//string ref,result;
+	//fin.open(INPUT_REF);
+	//fin >> ref;
+	//fin.close();
 
-	fin.open(DECODING_NAME);
-	fin >> result;
-	fin.close();
+	//fin.open(DECODING_NAME);
+	//fin >> result;
+	//fin.close();
 
-	compare_result(ref, result);
+	//compare_result(ref, result);
 
 }
