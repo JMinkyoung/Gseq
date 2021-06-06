@@ -73,7 +73,7 @@ private:
 	// SR 길이
 	const int L = 70;
 	// missmatch 허용 개수
-	const int D = 2;
+	const int D = 4;
 
 	string start;
 	string end;
@@ -99,7 +99,10 @@ public:
 		bwt_front = new char[T_len];
 		bwt_behind = new char[T_len];
 		decoding_result = new char[T_len];
+		memset(decoding_result, 'a', T_len);
+		decoding_result[T_len - 1] = '\0';
 		already_decoded = new bool[T_len];
+		memset(already_decoded, false, T_len);
 
 		fileRead_bwt();
 		fileRead_position();
@@ -398,7 +401,6 @@ private:
 		bool check;
 		int match_cnt = 0;
 
-
 		// SR 한줄씩 읽어들인다.
 		for (i = 0; i < short_reads.size(); i++) {
 			//cout << "SR 읽음" << endl;
@@ -465,15 +467,17 @@ private:
 						}
 						// 한칸 넘겼는데 다르면 다른 알파벳 등장이므로 아예 실패
 						else {
+							//cout << "missed i " << i << endl;
 							break;
 						}
 					}
 					else if(match_cnt >= L - D)
 					{
 						// 복원된 DNA를 배열에 넣어준다
-						int ptr = back_idx;
+						int ptr = back_idx - k;
 						if (!already_decoded[ptr])
 						{
+							//cout << "found i  " << i << endl;
 							already_decoded[ptr] = true;
 							for (int x = 0; x < L; x++) {
 								decoding_result[ptr] = line[x];
@@ -488,6 +492,8 @@ private:
 			if (i % 1000 == 0)
 				cout << "iter = " << i << endl;
 		}
+		//cout << "already count " << ard_cnt << " out of " << short_reads.size() << endl;
+		//cout << "miss count " << miss_cnt << " out of " << short_reads.size() << endl;
 
 		ofstream fout;
 		fout.open(DECODING_NAME, ios::app);
@@ -556,16 +562,16 @@ int main()
 	*/
 
 	// 일치율 비교
-	//ifstream fin;
-	//string ref,result;
-	//fin.open(INPUT_REF);
-	//fin >> ref;
-	//fin.close();
+	ifstream fin;
+	string ref,result;
+	fin.open(INPUT_REF);
+	fin >> ref;
+	fin.close();
 
-	//fin.open(DECODING_NAME);
-	//fin >> result;
-	//fin.close();
+	fin.open(DECODING_NAME);
+	fin >> result;
+	fin.close();
 
-	//compare_result(ref, result);
+	compare_result(ref, result);
 
 }
