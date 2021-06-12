@@ -1,0 +1,6 @@
+﻿  소스.cpp
+c:\users\좌\desktop\과제\2021 1학기\알고리즘\실습\팀프로젝트\제출용bwt\제출용bwt\소스.cpp(333): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+c:\users\좌\desktop\과제\2021 1학기\알고리즘\실습\팀프로젝트\제출용bwt\제출용bwt\소스.cpp(341): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+c:\users\좌\desktop\과제\2021 1학기\알고리즘\실습\팀프로젝트\제출용bwt\제출용bwt\소스.cpp(403): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+c:\users\좌\desktop\과제\2021 1학기\알고리즘\실습\팀프로젝트\제출용bwt\제출용bwt\소스.cpp(396): warning C4101: 'l' :참조되지 않은 지역 변수입니다.
+  제출용bwt.vcxproj -> C:\Users\좌\Desktop\과제\2021 1학기\알고리즘\실습\팀프로젝트\제출용bwt\Debug\제출용bwt.exe
