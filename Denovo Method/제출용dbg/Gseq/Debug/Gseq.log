@@ -1,0 +1,4 @@
+﻿  main.cpp
+C:\Users\User\source\repos\Gseq\Gseq\main.cpp(67,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\User\source\repos\Gseq\Gseq\main.cpp(68,9): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  Gseq.vcxproj -> C:\Users\User\source\repos\Gseq\Debug\Gseq.exe

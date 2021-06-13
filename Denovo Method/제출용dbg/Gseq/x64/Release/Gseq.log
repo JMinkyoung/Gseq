@@ -1,0 +1,13 @@
+﻿  dbg.cpp
+C:\Users\User\source\repos\Gseq\Gseq\dbg.cpp(51,24): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\User\source\repos\Gseq\Gseq\dbg.cpp(52,12): warning C4244: '인수': 'time_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\User\source\repos\Gseq\Gseq\dbg.cpp(81,24): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\User\source\repos\Gseq\Gseq\dbg.cpp(110,43): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\User\source\repos\Gseq\Gseq\dbg.cpp(159,12): warning C4244: '인수': 'time_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\User\source\repos\Gseq\Gseq\dbg.cpp(161,21): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  main.cpp
+  Previous IPDB not found, fall back to full compilation.
+  코드를 생성하고 있습니다.
+  All 592 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  코드를 생성했습니다.
+  Gseq.vcxproj -> C:\Users\User\source\repos\Gseq\x64\Release\Gseq.exe
